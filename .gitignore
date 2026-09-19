@@ -157,6 +157,10 @@ ENV/
 env.bak/
 venv.bak/
 
+# Projekt-State (Lockfiles, Cooldown-Timestamps) + Logs
+state/
+*.log
+
 # Spyder project settings
 .spyderproject
 .spyproject
