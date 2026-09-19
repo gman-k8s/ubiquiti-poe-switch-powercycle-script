@@ -7,9 +7,8 @@ Ausfall automatisch einen Power-Cycle des Ports aus. Fuer Cronjob gedacht.
 
 ## Voraussetzungen
 
-- Linux, Python 3.9+
-- [uv](https://docs.astral.sh/uv/getting-started/installation/) fuer die
-  lokale venv und das Dependency-Pinning
+- Linux, Python 3.9+ mit `venv`-Modul (Standard bei den meisten Distros;
+  auf Debian/Ubuntu ggf. `apt install python3-venv`)
 - `ping` im PATH (Standard auf jeder Linux-Distro)
 
 ## 1. Lokalen Service-Account im Controller anlegen
@@ -26,13 +25,13 @@ UniFi Network Application → Settings → Admins & Users → Add Admin.
 ```bash
 git clone <repo-url>
 cd ubiquiti-poe-switch-powercycle-script
-./setup-venv.sh          # legt .venv an, installiert Deps per uv (Versionen in uv.lock fixiert)
+./setup-venv.sh          # legt .venv an, installiert Deps aus requirements.txt
 cp .env.example .env
 $EDITOR .env              # Controller-URL, Zugangsdaten, Zielgeraet eintragen
 ```
 
 `.env` enthaelt Zugangsdaten und wird von Git ignoriert (siehe `.gitignore`).
-Committed werden nur `.env.example` (Template) und `uv.lock` (Versions-Pin).
+Committed werden nur `.env.example` (Template) und `requirements.txt` (Versions-Pin).
 
 **Achtung `UNIFI_SITE`:** case-sensitive Short-Name aus der Controller-URL
 (`.../manage/site/<name>/...`), nicht der Display-Name aus den Settings
@@ -106,17 +105,19 @@ gegenseitig. Ueberlappende Laeufe fuer denselben Port werden ueber
 
 ```
 poe_powercycle.py    Hauptscript
-pyproject.toml        Dependencies (nur requests)
-uv.lock                Versions-Pin, von uv gepflegt
-setup-venv.sh          Legt .venv per 'uv sync' an/aktualisiert sie
-.env.example           Config-Template (Controller, Credentials, Zielgeraet)
-.env                   Echte Werte, NICHT in Git (siehe .gitignore)
-state/                  Lock- und Cooldown-Dateien, NICHT in Git
+requirements.txt       Dependencies mit fixierten Versionen (requests + Transitive)
+setup-venv.sh           Legt .venv per 'python3 -m venv' + pip an
+.env.example            Config-Template (Controller, Credentials, Zielgeraet)
+.env                    Echte Werte, NICHT in Git (siehe .gitignore)
+state/                   Lock- und Cooldown-Dateien, NICHT in Git
 ```
 
 ## Versionen aktualisieren
 
+`requirements.txt` von Hand anpassen (z.B. `requests` auf neue Version),
+dann:
+
 ```bash
-uv lock --upgrade   # uv.lock neu aufloesen
-./setup-venv.sh      # .venv auf neuen Stand bringen
+rm -rf .venv
+./setup-venv.sh
 ```

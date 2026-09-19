@@ -2,13 +2,16 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
-if ! command -v uv >/dev/null 2>&1; then
-    echo "FEHLER: 'uv' nicht gefunden." >&2
-    echo "Installation: https://docs.astral.sh/uv/getting-started/installation/" >&2
+PYTHON_BIN="${PYTHON_BIN:-python3}"
+
+if ! command -v "$PYTHON_BIN" >/dev/null 2>&1; then
+    echo "FEHLER: '$PYTHON_BIN' nicht gefunden." >&2
     exit 1
 fi
 
-uv sync
+"$PYTHON_BIN" -m venv .venv
+.venv/bin/python3 -m pip install --upgrade pip
+.venv/bin/pip install -r requirements.txt
 
 echo "OK: .venv bereit unter $(pwd)/.venv"
-echo "Versionen fixiert in uv.lock (siehe 'uv lock --upgrade' fuer Updates)."
+echo "Versionen fixiert in requirements.txt (manuell aktualisieren + neu ausfuehren)."
